@@ -2,133 +2,135 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Calculadora Icon Designer</title>
+    <title>Creador de Iconos de Calculadora</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         :root {
-            --bg-calc: #f0f0f0;
-            --border-color: #d1d1d1;
+            --bg-calc: #efefef;
+            --border-outer: #dcdcdc;
             --screen-bg: #ffffff;
-            --button-area-bg: #e5e5e5;
+            --keypad-bg: #e0e0e0; /* Gris un poco más oscuro */
             --btn-black: #1a1a1a;
+            --gap: 12px; /* Espaciado uniforme */
         }
 
         body {
-            background: #fafafa;
-            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px;
+            padding: 20px;
         }
 
-        /* Contenedor Cuadrado para Exportación */
+        /* Contenedor Cuadrado de Exportación */
         #export-container {
-            width: 500px;
-            height: 500px;
-            background: white; /* Puedes cambiar a transparent si prefieres */
+            width: 512px;
+            height: 512px;
+            background: white; 
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px dashed #ccc;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
 
-        /* Estética de la Calculadora */
+        /* Cuerpo de la Calculadora */
         .calculator {
-            width: 340px;
+            width: 360px;
             background: var(--bg-calc);
-            border: 3px solid var(--border-color);
-            border-radius: 50px; /* Muy redondeado */
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 2px solid var(--border-outer);
+            border-radius: 60px;
+            padding: 35px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
         }
 
-        /* Pantalla de la Calculadora */
+        /* Pantalla con auto-ajuste */
         .screen {
             background: var(--screen-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 25px;
-            height: 120px; /* Pantalla más grande */
+            border: 2px solid #e5e5e5;
+            border-radius: 30px;
+            height: 140px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 15px;
-            overflow: hidden;
+            padding: 10px;
+            overflow: hidden; /* Importante para el auto-scale */
+            position: relative;
         }
 
-        #latex-render {
-            font-size: 1.8rem;
-            color: #222;
+        /* Contenedor interno que escala la fórmula */
+        #math-wrapper {
+            transition: transform 0.2s ease;
+            transform-origin: center;
+            white-space: nowrap;
         }
 
-        /* Área de botones (Gris más oscuro) */
-        .pad {
-            background: var(--button-area-bg);
-            border: 2px solid #d8d8d8;
-            border-radius: 30px;
-            padding: 20px;
+        /* Teclado Compacto */
+        .keypad {
+            background: var(--keypad-bg);
+            border-radius: 35px;
+            padding: var(--gap); /* Distancia al borde igual al gap entre botones */
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            gap: var(--gap);
         }
 
-        /* Botones Estilo "Squircle" */
+        /* Botones Squircles Grandes */
         .btn {
             background: var(--btn-black);
-            width: 65px;
-            height: 65px;
-            border-radius: 20px; /* Redondeado medio cuadrado */
+            aspect-ratio: 1 / 1;
+            border-radius: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 28px;
+            font-weight: 600;
         }
 
-        /* Botón Igual (Largo) */
+        /* Botón Igual */
         .btn-equal {
             grid-column: 3;
             grid-row: 1 / span 2;
+            aspect-ratio: auto;
             height: 100%;
-            width: 65px;
-            border-radius: 20px;
         }
 
-        /* Controles de usuario */
-        .ui-controls {
+        /* UI de Control */
+        .ui {
             margin-top: 30px;
+            width: 450px;
             display: flex;
             flex-direction: column;
             gap: 15px;
-            width: 400px;
         }
 
-        input {
-            padding: 12px;
-            border-radius: 8px;
+        textarea {
+            padding: 15px;
+            border-radius: 12px;
             border: 1px solid #ccc;
+            font-family: monospace;
+            resize: vertical;
+        }
+
+        .download-btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
             font-size: 16px;
         }
 
-        .btn-download {
-            background: #000;
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        .btn-download:hover { background: #333; }
+        .download-btn:hover { background: #333; }
     </style>
 </head>
 <body>
@@ -136,10 +138,12 @@
     <div id="export-container">
         <div class="calculator">
             <div class="screen">
-                <div id="latex-render"></div>
+                <div id="math-wrapper">
+                    <div id="latex-render"></div>
+                </div>
             </div>
             
-            <div class="pad">
+            <div class="keypad">
                 <div class="btn">+</div>
                 <div class="btn">-</div>
                 <div class="btn btn-equal">=</div>
@@ -149,46 +153,54 @@
         </div>
     </div>
 
-    <div class="ui-controls">
-        <label>Escribe tu fórmula (LaTeX):</label>
-        <input type="text" id="latex-input" placeholder="\frac{a}{b} + \sqrt{x}" value="\int_{a}^{b} x^2 dx">
-        <button class="btn-download" onclick="downloadImage()">Descargar PNG de alta calidad</button>
+    <div class="ui">
+        <label>Fórmula LaTeX:</label>
+        <textarea id="latex-input" rows="3">\frac{A_1}{ax+b} + \frac{A_2}{(ax+b)^2} + \dots</textarea>
+        <button class="download-btn" onclick="downloadPNG()">Descargar Icono PNG Alta Calidad</button>
     </div>
 
     <script>
         const input = document.getElementById('latex-input');
-        const output = document.getElementById('latex-render');
+        const render = document.getElementById('latex-render');
+        const wrapper = document.getElementById('math-wrapper');
+        const screen = document.querySelector('.screen');
 
-        // Función para renderizar LaTeX en tiempo real
         function updateMath() {
-            try {
-                katex.render(input.value, output, {
-                    throwOnError: false,
-                    displayMode: true
-                });
-            } catch (e) {
-                console.error(e);
-            }
+            // 1. Renderizar la fórmula
+            katex.render(input.value, render, {
+                throwOnError: false,
+                displayMode: true
+            });
+
+            // 2. Auto-ajustar tamaño (Shrink to fit)
+            setTimeout(() => {
+                const padding = 40; // Margen interno de seguridad
+                const availableWidth = screen.offsetWidth - padding;
+                const formulaWidth = render.offsetWidth;
+                
+                if (formulaWidth > availableWidth) {
+                    const scale = availableWidth / formulaWidth;
+                    wrapper.style.transform = `scale(${scale})`;
+                } else {
+                    wrapper.style.transform = `scale(1)`;
+                }
+            }, 50);
         }
 
-        // Escuchar cambios en el input
         input.addEventListener('input', updateMath);
+        window.addEventListener('load', updateMath);
 
-        // Inicializar
-        updateMath();
-
-        // Función para descargar la imagen
-        function downloadImage() {
+        function downloadPNG() {
             const container = document.getElementById('export-container');
             
-            // Usamos una escala alta (x3) para que el PNG sea de alta resolución
             html2canvas(container, {
                 backgroundColor: null,
-                scale: 3, 
+                scale: 4, // Ultra alta definición
                 logging: false,
+                useCORS: true
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'icon-calculadora.png';
+                link.download = 'icon-calculadora-latex.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             });

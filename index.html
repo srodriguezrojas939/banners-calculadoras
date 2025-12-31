@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es"><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora con Visor LaTeX</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-nK8hlFx0S30cSd8Fw7u/UI2iR1R8X9D+h/b9A/X4Q+gKx+z8" crossorigin="anonymous">
+    
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Estilos para el SVG de la calculadora */
+        #calculatorSVG {
+            width: 300px; /* Tamaño del SVG */
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Estilo para el área de visualización de LaTeX */
+        #latexDisplay {
+            position: absolute; /* Para posicionar sobre el SVG */
+            width: 170px; /* Ajusta al "hueco" de la pantalla */
+            height: 60px; /* Ajusta al "hueco" de la pantalla */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Centrar */
+            overflow: hidden; /* Ocultar lo que se sale */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none; /* Transparente, el SVG tiene el fondo */
+            box-sizing: border-box;
+            padding: 5px;
+            font-size: 1.2em; /* Tamaño de la fórmula */
+            color: #333;
+        }
+
+        /* Contenedor del SVG para posicionar el LaTeX */
+        .svg-wrapper {
+            position: relative;
+            width: 300px; /* Igual al width del SVG */
+            height: 380px; /* Aproximado al alto del SVG */
+        }
+
+        textarea {
+            width: 90%;
+            max-width: 400px;
+            min-height: 80px;
+            padding: 10px;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            resize: vertical;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        button {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        /* Ajustes para KaTeX */
+        .katex {
+            font-size: 1.2em; /* Asegúrate de que las fórmulas se vean bien */
+            white-space: normal; /* Permite que las fórmulas largas se envuelvan */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        <h1>Tu Calculadora con LaTeX</h1>
+        
+        <div class="svg-wrapper">
+            <svg id="calculatorSVG" width="300" height="380" viewBox="0 0 240 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="22.5" y="19" width="195" height="262" rx="20" fill="#F0F0F0" stroke="#CCCCCC" stroke-width="2"/>
+                <path d="M22.5 39C22.5 27.9543 31.4543 19 42.5 19H197.5C208.546 19 217.5 27.9543 217.5 39V261C217.5 272.046 208.546 281 197.5 281H42.5C31.4543 281 22.5 272.046 22.5 261V39Z" fill="none" stroke="#666666" stroke-width="2"/>
+                
+                <rect x="42.5" y="44" width="155" height="70" rx="10" fill="white" stroke="#CCCCCC" stroke-width="1.5"/>
+                <path d="M42.5 54C42.5 48.4772 46.9772 44 52.5 44H187.5C193.023 44 197.5 48.4772 197.5 54V104C197.5 109.523 193.023 114 187.5 114H52.5C46.9772 114 42.5 109.523 42.5 104V54Z" fill="none" stroke="#888888" stroke-width="1.5"/>
+                
+                <rect x="42.5" y="139" width="155" height="122" rx="10" fill="white" stroke="#CCCCCC" stroke-width="1.5"/>
+                <path d="M42.5 149C42.5 143.477 46.9772 139 52.5 139H187.5C193.023 139 197.5 143.477 197.5 149V251C197.5 256.523 193.023 261 187.5 261H52.5C46.9772 261 42.5 256.523 42.5 251V149Z" fill="none" stroke="#888888" stroke-width="1.5"/>
+                
+                <circle cx="75" cy="170" r="15" fill="#333333"/>
+                <path d="M75 163V177M68 170H82" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                
+                <circle cx="120" cy="170" r="15" fill="#333333"/>
+                <path d="M113 170H127" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                
+                <circle cx="75" cy="220" r="15" fill="#333333"/>
+                <path d="M68 220H82M75 213L75 227" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                
+                <circle cx="120" cy="220" r="15" fill="#333333"/>
+                <path d="M113 220L127 220M120 213L120 227" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                
+                <rect x="155" y="155" width="40" height="90" rx="10" fill="#333333"/>
+                <path d="M165 190H185M165 200H185" stroke="white" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <div id="latexDisplay"></div>
+        </div>
+
+        <div class="controls">
+            <textarea id="latexInput" placeholder="Escribe tu fórmula LaTeX aquí. Ej: \frac{x^2+y^2}{z}"></textarea>
+            <button onclick="renderFormula()">Mostrar Fórmula</button>
+            <button onclick="downloadCalculator()">Descargar Calculadora (PNG)</button>
+        </div>
+    </div>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-PPYqO8j/FwWw2A7M8/K7h8r7f5W3z2W/R9/0w7z/o3Fw7w7v7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora con Visor LaTeX</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-nK8hlFx0S30cSd8Fw7u/UI2iR1R8X9D+h/b9A/X4Q+gKx+z8" crossorigin="anonymous">
+    
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Estilos para el SVG de la calculadora */
+        #calculatorSVG {
+            width: 300px; /* Tamaño del SVG */
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Estilo para el área de visualización de LaTeX */
+        #latexDisplay {
+            position: absolute; /* Para posicionar sobre el SVG */
+            width: 170px; /* Ajusta al "hueco" de la pantalla */
+            height: 60px; /* Ajusta al "hueco" de la pantalla */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Centrar */
+            overflow: hidden; /* Ocultar lo que se sale */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none; /* Transparente, el SVG tiene el fondo */
+            box-sizing: border-box;
+            padding: 5px;
+            font-size: 1.2em; /* Tamaño de la fórmula */
+            color: #333;
+        }
+
+        /* Contenedor del SVG para posicionar el LaTeX */
+        .svg-wrapper {
+            position: relative;
+            width: 300px; /* Igual al width del SVG */
+            height: 380px; /* Aproximado al alto del SVG */
+        }
+
+        textarea {
+            width: 90%;
+            max-width: 400px;
+            min-height: 80px;
+            padding: 10px;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            resize: vertical;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        button {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        /* Ajustes para KaTeX */
+        .katex {
+            font-size: 1.2em; /* Asegúrate de que las fórmulas se vean bien */
+            white-space: normal; /* Permite que las fórmulas largas se envuelvan */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        <h1>Tu Calculadora con LaTeX</h1>
+        
+        <div class="svg-wrapper">
+            <svg id="calculatorSVG" width="300" height="380" viewBox="0 0 240 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="22.5" y="19" width="195" height="262" rx="20" fill="#F0F0F0" stroke="#CCCCCC" stroke-width="2"/>
+                <path d="M22.5 39C22.5 27.9543 31.4543 19 42.5 19H197.5C208.546 19 217.5 27.9543 217.5 39V261C217.5 272.046 208.546 281 197.5 281H42.5C31.4543 281 22.5 272.046 22.5 261V39Z" fill="none" stroke="#666666" stroke-width="2"/>
+                
+                <rect x="42.5" y="44" width="155" height="70" rx="10" fill="white" stroke="#CCCCCC" stroke-width="1.5"/>
+                <path d="M42.5 54C42.5 48.4772 46.9772 44 52.5 44H187.5C193.023 44 197.5 48.4772 197.5 54V104C197.5 109.523 193.023 114 187.5 114H52.5C46.9772 114 42.5 109.523 42.5 104V54Z" fill="none" stroke="#888888" stroke-width="1.5"/>
+                
+                <rect x="42.5" y="139" width="155" height="122" rx="10" fill="white" stroke="#CCCCCC" stroke-width="1.5"/>
+                <path d="M42.5 149C42.5 143.477 46.9772 139 52.5 139H187.5C193.023 139 197.5 143.477 197.5 149V251C197.5 256.523 193.023 261 187.5 261H52.5C46.9772 261 42.5 256.523 42.5 251V149Z" fill="none" stroke="#888888" stroke-width="1.5"/>
+                
+                <circle cx="75" cy="170" r="15" fill="#333333"/>
+                <path d="M75 163V177M68 170H82" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                
+                <circle cx="120" cy="170" r="15" fill="#333333"/>
+                <path d="M113 170H127" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                
+                <circle cx="75" cy="220" r="15" fill="#333333"/>
+                <path d="M68 220H82M75 213L75 227" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                
+                <circle cx="120" cy="220" r="15" fill="#333333"/>
+                <path d="M113 220L127 220M120 213L120 227" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                
+                <rect x="155" y="155" width="40" height="90" rx="10" fill="#333333"/>
+                <path d="M165 190H185M165 200H185" stroke="white" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <div id="latexDisplay"></div>
+        </div>
+
+        <div class="controls">
+            <textarea id="latexInput" placeholder="Escribe tu fórmula LaTeX aquí. Ej: \frac{x^2+y^2}{z}"></textarea>
+            <button onclick="renderFormula()">Mostrar Fórmula</button>
+            <button onclick="downloadCalculator()">Descargar Calculadora (PNG)</button>
+        </div>
+    </div>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-PPYqO8j/FwWw2A7M8/K7h8r7f5W3z2W/R9/0w7z/o3Fw7w7v7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z/o3Fw7w7v7z
